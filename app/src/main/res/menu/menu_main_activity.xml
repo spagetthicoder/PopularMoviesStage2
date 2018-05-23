@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/popularity"
+        android:icon="@drawable/ic_arrow_upward_black_24dp"
+        android:title="@string/pref_sort_popularity_key" />
+    <item android:id="@+id/topRated"
+        android:icon="@drawable/ic_arrow_upward_black_24dp"
+        android:title="@string/pref_sort_top_rated_key" />
+    <item android:id="@+id/favorites"
+        android:icon="@drawable/ic_arrow_upward_black_24dp"
+        android:title="@string/favorites" />
+</menu>
