@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -28,6 +29,7 @@ public class MoviesListFragment extends android.app.Fragment {
     private GridView gridView;
     private SharedPreferences sharedPreferences;
     private OnMovieClickListener mCallback;
+    private Parcelable state;
 
 
     public MoviesListFragment() {
@@ -42,11 +44,24 @@ public class MoviesListFragment extends android.app.Fragment {
     }
 
     @Override
+    public void onPause() {
+        // Save ListView state @ onPause
+        Log.d(TAG, "saving listview state @ onPause");
+        state = gridView.onSaveInstanceState();
+        super.onPause();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movies_list, container, false);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setAdapter(thumbNailImageAdapter);
+        // Restore previous state (including selected item index and scroll position)
+        if(state != null) {
+            Log.d(TAG, "trying to restore listview state..");
+            gridView.onRestoreInstanceState(state);
+        }
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -57,8 +72,6 @@ public class MoviesListFragment extends android.app.Fragment {
                 mCallback.onMovieClick(movieId, position);
             }
         });
-
-
         setHasOptionsMenu(true);
         return rootView;
     }

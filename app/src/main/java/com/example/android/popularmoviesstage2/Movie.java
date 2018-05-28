@@ -23,7 +23,6 @@ import java.util.ArrayList;
 public class Movie {
     private final String moviePoster;
     private final int movieId;
-    final String MOVIEDB_POSTER_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
     public Movie(String moviePoster, int movieId) {
         this.moviePoster = moviePoster;

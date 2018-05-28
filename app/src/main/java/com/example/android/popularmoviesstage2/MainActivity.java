@@ -9,13 +9,14 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 
-public class MainActivity extends Activity implements OnMovieClickListener {
+public class MainActivity extends FragmentActivity implements OnMovieClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private boolean loadingState = false;
