@@ -175,9 +175,15 @@ public class MovieDetailFragment extends android.app.Fragment {
     private void populateDetailsViewData(final MovieDetail detailData) {
 
         Picasso pic = Picasso.with(getActivity().getApplicationContext());
-        pic.load(detailData.getMoviePoster())
-                .error(R.drawable.no_image)
-                .into(thumbImageView);
+        if(sortOrder.equals("favorites")) {
+            pic.load(detailData.getMoviePoster())
+                    .error(R.drawable.no_image)
+                    .into(thumbImageView);
+        }else{
+            pic.load(MOVIEDB_POSTER_BASE_URL + detailData.getMoviePoster())
+                    .error(R.drawable.no_image)
+                    .into(thumbImageView);
+        }
         movieTitle.setText(detailData.getMovieTitle());
         releaseYear.setText(detailData.getMoveReleaseYear());
         overview.setText(detailData.getMovieOverview());
@@ -208,7 +214,7 @@ public class MovieDetailFragment extends android.app.Fragment {
                     values.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, detailData.getMovieOverview());
                     values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, detailData.getVoteAverage());
                     values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, detailData.getMoveReleaseYear());
-                    values.put(MovieContract.MovieEntry.COLUMN_POSTER, detailData.getMoviePoster());
+                    values.put(MovieContract.MovieEntry.COLUMN_POSTER, MOVIEDB_POSTER_BASE_URL + detailData.getMoviePoster());
                     if (trailerObj.length()>0)
                         values.put(MovieContract.MovieEntry.COLUMN_TRAILERS, trailerObj.toString());
                     else
@@ -376,7 +382,7 @@ public class MovieDetailFragment extends android.app.Fragment {
 
                 try {
                     //poster_path, title, overview, release_year, run time, ratings
-                    detailsData = new MovieDetail(movieId, jObj.getString("poster_path"),
+                    detailsData = new MovieDetail(movieId, MOVIEDB_POSTER_BASE_URL + jObj.getString("poster_path"),
                             jObj.getString("poster_path"),
                             jObj.getString("title"),
                             jObj.getString("overview"),

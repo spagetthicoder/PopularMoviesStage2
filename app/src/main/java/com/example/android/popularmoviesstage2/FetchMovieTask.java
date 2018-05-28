@@ -17,6 +17,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, ArrayList<Movie>> {
     private final FetchMovieTaskListener fetchListener;
     private static final String TAG = FetchMovieTask.class.getSimpleName();
     JSONObject jObj;
+    final String MOVIEDB_POSTER_BASE_URL = "https://image.tmdb.org/t/p/w185";
 
     FetchMovieTask(MovieAdapter adapter, String sortOrder, FetchMovieTaskListener fetchMovieTaskListener){
         this.sortOrder = sortOrder;
@@ -44,7 +45,7 @@ public class FetchMovieTask extends AsyncTask<Integer, Void, ArrayList<Movie>> {
                 JSONObject movie = movieArray.optJSONObject(i);
                 String moviePoster = movie.getString("poster_path");
                 int movieId = movie.getInt("id");
-                Movie data = new Movie(moviePoster, movieId);
+                Movie data = new Movie(MOVIEDB_POSTER_BASE_URL + moviePoster, movieId);
                 moviePosters.add(data);
             }
         } catch (JSONException e) {

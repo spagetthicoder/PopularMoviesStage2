@@ -31,7 +31,7 @@ public class Movie {
     }
 
     public String getMoviePoster() {
-        return MOVIEDB_POSTER_BASE_URL + moviePoster;
+        return moviePoster;
     }
 
     public int getMovieId() {
