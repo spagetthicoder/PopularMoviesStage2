@@ -34,6 +34,7 @@ public class MovieDetailsActivity extends Activity implements OnMovieClickListen
             args.putString("sortOrder", sortOrder);
             detailFragment.updateContent(args);
         }
+        getActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override

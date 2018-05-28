@@ -15,12 +15,15 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MovieDetailsActivity" />
-        <activity android:name=".DetailActivity" />
+        <activity android:name=".MovieDetailsActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity android:name=".DetailActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
         <provider
             android:authorities="com.example.android.popularmoviesstage2.database.movieprovider"
             android:name=".database.MovieProvider">
