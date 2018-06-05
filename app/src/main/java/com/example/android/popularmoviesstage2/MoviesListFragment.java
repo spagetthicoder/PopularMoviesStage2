@@ -29,7 +29,7 @@ public class MoviesListFragment extends android.app.Fragment {
     private GridView gridView;
     private SharedPreferences sharedPreferences;
     private OnMovieClickListener mCallback;
-    private Parcelable state;
+    private int state = 0;
 
 
     public MoviesListFragment() {
@@ -44,11 +44,11 @@ public class MoviesListFragment extends android.app.Fragment {
     }
 
     @Override
-    public void onPause() {
-        // Save ListView state @ onPause
-        Log.d(TAG, "saving listview state @ onPause");
-        state = gridView.onSaveInstanceState();
-        super.onPause();
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "saving listview state @ onSaveInstanceState");
+        state = gridView.getFirstVisiblePosition();
+        outState.putInt("scrollPosition", state);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -57,11 +57,14 @@ public class MoviesListFragment extends android.app.Fragment {
         View rootView = inflater.inflate(R.layout.fragment_movies_list, container, false);
         gridView = (GridView) rootView.findViewById(R.id.gridview);
         gridView.setAdapter(thumbNailImageAdapter);
+
         // Restore previous state (including selected item index and scroll position)
-        if(state != null) {
+        if(savedInstanceState != null) {
             Log.d(TAG, "trying to restore listview state..");
-            gridView.onRestoreInstanceState(state);
+            state = savedInstanceState.getInt("scrollPosition");
+            gridView.setSelection(state);
         }
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
@@ -74,6 +77,13 @@ public class MoviesListFragment extends android.app.Fragment {
         });
         setHasOptionsMenu(true);
         return rootView;
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+            Log.d(TAG, "trying to restore listview state..");
+            gridView.setSelection(state);
+        super.onViewStateRestored(savedInstanceState);
     }
 
     @Override

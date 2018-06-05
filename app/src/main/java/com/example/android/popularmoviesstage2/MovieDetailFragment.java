@@ -127,11 +127,16 @@ public class MovieDetailFragment extends android.app.Fragment {
         Log.e(TAG,"onResume calling activity name:"+getActivity().getClass().getSimpleName());
     }
 
-   /* @Override
+    @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
 
-    }*/
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+    }
 
     @Override
     public void onPause() {

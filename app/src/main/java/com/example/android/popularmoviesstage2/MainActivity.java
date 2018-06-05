@@ -19,7 +19,6 @@ import android.widget.Toast;
 public class MainActivity extends FragmentActivity implements OnMovieClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private boolean loadingState = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

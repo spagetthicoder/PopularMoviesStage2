@@ -1,6 +1,5 @@
 package com.example.android.popularmoviesstage2;
 
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
