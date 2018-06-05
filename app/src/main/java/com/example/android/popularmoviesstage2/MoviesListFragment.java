@@ -81,8 +81,6 @@ public class MoviesListFragment extends android.app.Fragment {
 
     @Override
     public void onViewStateRestored(Bundle savedInstanceState) {
-            Log.d(TAG, "trying to restore listview state..");
-            gridView.setSelection(state);
         super.onViewStateRestored(savedInstanceState);
     }
 
