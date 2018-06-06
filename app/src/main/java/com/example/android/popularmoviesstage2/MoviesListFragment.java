@@ -23,13 +23,14 @@ import android.widget.Toast;
 
 public class MoviesListFragment extends android.app.Fragment {
 
+    private static final String STATE = "scrollPosition";
     private MovieAdapter thumbNailImageAdapter;
     private static final String TAG = MoviesListFragment.class.getSimpleName();
     private String sortOrder ;
     private GridView gridView;
     private SharedPreferences sharedPreferences;
     private OnMovieClickListener mCallback;
-    private int state = 0;
+    private Parcelable state;
 
 
     public MoviesListFragment() {
@@ -46,8 +47,8 @@ public class MoviesListFragment extends android.app.Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "saving listview state @ onSaveInstanceState");
-        state = gridView.getFirstVisiblePosition();
-        outState.putInt("scrollPosition", state);
+        state = gridView.onSaveInstanceState();
+        outState.putParcelable(STATE, state);
         super.onSaveInstanceState(outState);
     }
 
@@ -61,8 +62,7 @@ public class MoviesListFragment extends android.app.Fragment {
         // Restore previous state (including selected item index and scroll position)
         if(savedInstanceState != null) {
             Log.d(TAG, "trying to restore listview state..");
-            state = savedInstanceState.getInt("scrollPosition");
-            gridView.setSelection(state);
+            state = savedInstanceState.getParcelable(STATE);
         }
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -179,6 +179,9 @@ public class MoviesListFragment extends android.app.Fragment {
         @Override
         public void onFetchCompleted() {
             loadingState = false;
+            if(state != null){
+                gridView.onRestoreInstanceState(state);
+            }
         }
 
         @Override
