@@ -38,13 +38,6 @@ public class MainActivity extends FragmentActivity implements OnMovieClickListen
         if(getResources().getBoolean(R.bool.landscape_only)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-        MovieDetailFragment detailFrag = (MovieDetailFragment)getFragmentManager().findFragmentById(R.id.detail_frag);
-        if (detailFrag != null) {
-            final FragmentTransaction ft = getFragmentManager().beginTransaction();
-            ft.detach(detailFrag);
-            ft.attach(detailFrag);
-            ft.commit();
-        }
     }
 
     @Override
@@ -98,36 +91,18 @@ public class MainActivity extends FragmentActivity implements OnMovieClickListen
 
     @Override
     public void onMovieClick(int movieId, int position) {
-        MovieDetailFragment detailFrag = (MovieDetailFragment)getFragmentManager().findFragmentById(R.id.detail_frag);
-        if (detailFrag == null) {
             Log.v(TAG, "onMovieClick movieId :" + movieId);
             Intent detailIntent = new Intent(this, DetailActivity.class);
             detailIntent.putExtra("MovieListItem",movieId);
             detailIntent.putExtra("SortOrder", getSortMethod());
             detailIntent.putExtra("position", position);
             startActivity(detailIntent);
-        } else {
-            Bundle args = new Bundle();
-            args.putInt("movieId", movieId);
-            args.putString("sortOrder", getSortMethod());
-            args.putInt("position", position);
-            detailFrag.updateContent(args);
-        }
     }
 
     @Override
     public void onFavoriteDeleted(int movieId, int position) {
-        MovieDetailFragment detailFrag = (MovieDetailFragment)getFragmentManager().findFragmentById(R.id.detail_frag);
-        if (detailFrag != null) {
-            //update the movie list fragment
-            MoviesListFragment listFrag = (MoviesListFragment)getFragmentManager().findFragmentById(R.id.movie_list_frag);
-            listFrag.notifyFavoriteDeleted(position);
-            Bundle args = new Bundle();
-            args.putInt("movieId",0);
-            detailFrag.updateContent(args);
-        }
-    }
 
+    }
 
 }
 

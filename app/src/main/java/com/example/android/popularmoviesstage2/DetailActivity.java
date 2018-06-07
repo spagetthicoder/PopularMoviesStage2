@@ -1,6 +1,7 @@
 package com.example.android.popularmoviesstage2;
 
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
@@ -29,10 +30,18 @@ public class DetailActivity extends Activity implements OnMovieClickListener{
 
         if( savedInstanceState == null ) {
             MovieDetailFragment detailFragment = (MovieDetailFragment) getFragmentManager().findFragmentById(R.id.movie_list_frag);
+
+            MovieDetailFragment detailFragment1 = new MovieDetailFragment();
             Bundle args = new Bundle();
             args.putInt("movieId", movieId);
             args.putString("sortOrder", sortOrder);
-            detailFragment.updateContent(args);
+            detailFragment1.setArguments(args);
+
+            //detailFragment.updateContent(args);
+
+            FragmentTransaction transaction = getFragmentManager().beginTransaction();
+            transaction.replace(R.id.movie_list_frag, detailFragment1);
+            transaction.commit();
         }
     }
 

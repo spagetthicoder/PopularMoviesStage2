@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -65,17 +66,6 @@ public class MovieDetailFragment extends android.app.Fragment {
 
     }
 
-    public static MovieDetailFragment newInstance(int movieId, String sortOrder) {
-        MovieDetailFragment f = new MovieDetailFragment();
-
-        Bundle args = new Bundle();
-        args.putInt("movieId", movieId);
-        args.putString("sortOrder", sortOrder);
-        f.setArguments(args);
-        return f;
-    }
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,12 +74,8 @@ public class MovieDetailFragment extends android.app.Fragment {
 
     @Override
     public void onActivityCreated(Bundle savedInstance) {
-
         super.onActivityCreated(savedInstance);
         rootView = this.getView();
-        // getFragmentArguments();
-
-
     }
 
     @Override
@@ -109,22 +95,33 @@ public class MovieDetailFragment extends android.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         setupMovieDetailsView();
         return rootView;
     }
 
     @Override
-    public void onResume()
-    {
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (getArguments() != null) {
+            movieId = getArguments().getInt("movieId");
+            sortOrder = getArguments().getString("sortOrder");
+            Bundle args = new Bundle();
+            args.putInt("movieId", movieId);
+            args.putString("sortOrder", sortOrder);
+            updateContent(args);
+        }
+    }
+
+    @Override
+    public void onResume() {
         super.onResume();
         if (getActivity().getClass().getSimpleName().compareTo("MainActivity") == 0) {
 
             tv_SelectMovie.setVisibility(View.VISIBLE);
             detailScrollView.setVisibility(View.INVISIBLE);
         }
-        Log.e(TAG,"onResume calling activity name:"+getActivity().getClass().getSimpleName());
+        Log.e(TAG, "onResume calling activity name:" + getActivity().getClass().getSimpleName());
     }
 
     @Override
@@ -158,33 +155,33 @@ public class MovieDetailFragment extends android.app.Fragment {
         tv_SelectMovie.setVisibility(View.GONE);
         detailScrollView.setVisibility(View.VISIBLE);
 
-        if(sortOrder.equals("favorites")){
+        if (sortOrder.equals("favorites")) {
             fetchFavoriteMovieData(movieId);
-        }else
+        } else
             fetchMovieData(movieId);
     }
 
     private void setupMovieDetailsView() {
-        movieTitle = (TextView)rootView.findViewById(R.id.movie_title);
-        thumbImageView = (ImageView)rootView.findViewById(R.id.thumb_imageView);
-        releaseYear = (TextView)rootView.findViewById(R.id.release_date);
-        rating = (TextView)rootView.findViewById(R.id.rating);
-        overview = (TextView)rootView.findViewById(R.id.overview);
-        favsIcon = (ImageView)rootView.findViewById(R.id.favorites_icon);
-        trailersListView = (LinearLayout)rootView.findViewById(R.id.trailer_list);
-        reviewsListView = (LinearLayout)rootView.findViewById(R.id.reviews_list);
-        detailScrollView = (ScrollView)rootView.findViewById(R.id.sv_movieDetail);
-        tv_SelectMovie = (TextView)rootView.findViewById(R.id.tv_selectMovieDetail);
+        movieTitle = (TextView) rootView.findViewById(R.id.movie_title);
+        thumbImageView = (ImageView) rootView.findViewById(R.id.thumb_imageView);
+        releaseYear = (TextView) rootView.findViewById(R.id.release_date);
+        rating = (TextView) rootView.findViewById(R.id.rating);
+        overview = (TextView) rootView.findViewById(R.id.overview);
+        favsIcon = (ImageView) rootView.findViewById(R.id.favorites_icon);
+        trailersListView = (LinearLayout) rootView.findViewById(R.id.trailer_list);
+        reviewsListView = (LinearLayout) rootView.findViewById(R.id.reviews_list);
+        detailScrollView = (ScrollView) rootView.findViewById(R.id.sv_movieDetail);
+        tv_SelectMovie = (TextView) rootView.findViewById(R.id.tv_selectMovieDetail);
     }
 
     private void populateDetailsViewData(final MovieDetail detailData) {
 
         Picasso pic = Picasso.with(getActivity().getApplicationContext());
-        if(sortOrder.equals("favorites")) {
+        if (sortOrder.equals("favorites")) {
             pic.load(detailData.getMoviePoster())
                     .error(R.drawable.no_image)
                     .into(thumbImageView);
-        }else{
+        } else {
             pic.load(MOVIEDB_POSTER_BASE_URL + detailData.getMoviePoster())
                     .error(R.drawable.no_image)
                     .into(thumbImageView);
@@ -194,17 +191,16 @@ public class MovieDetailFragment extends android.app.Fragment {
         overview.setText(detailData.getMovieOverview());
         overview.setEllipsize(TextUtils.TruncateAt.END);
         overview.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-        rating.setText(detailData.getVoteAverage()+"/10");
+        rating.setText(detailData.getVoteAverage() + "/10");
 
         //check if this movie is inserted into favorites
-        Uri movieUri = Uri.parse(MovieProvider.CONTENT_URI+"/"+detailData.getMovieId());
+        Uri movieUri = Uri.parse(MovieProvider.CONTENT_URI + "/" + detailData.getMovieId());
         String[] projection = new String[]{MovieContract.MovieEntry._ID};
-        Cursor cursor = getActivity().getContentResolver().query(movieUri,projection,null, null, null);
+        Cursor cursor = getActivity().getContentResolver().query(movieUri, projection, null, null, null);
         if (cursor.getCount() == 0) {
             favsIcon.setImageResource(R.drawable.baseline_star_border_black_18dp);
             isFavorite = false;
-        }
-        else {
+        } else {
             favsIcon.setImageResource(R.drawable.baseline_star_black_18dp);
             isFavorite = true;
         }
@@ -220,7 +216,7 @@ public class MovieDetailFragment extends android.app.Fragment {
                     values.put(MovieContract.MovieEntry.COLUMN_VOTE_AVERAGE, detailData.getVoteAverage());
                     values.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, detailData.getMoveReleaseYear());
                     values.put(MovieContract.MovieEntry.COLUMN_POSTER, MOVIEDB_POSTER_BASE_URL + detailData.getMoviePoster());
-                    if (trailerObj.length()>0)
+                    if (trailerObj.length() > 0)
                         values.put(MovieContract.MovieEntry.COLUMN_TRAILERS, trailerObj.toString());
                     else
                         values.put(MovieContract.MovieEntry.COLUMN_TRAILERS, "");
@@ -234,10 +230,9 @@ public class MovieDetailFragment extends android.app.Fragment {
                         favsIcon.setImageResource(R.drawable.baseline_star_black_18dp);
                         isFavorite = true;
                     }
-                }
-                else {
+                } else {
                     favsIcon.setImageResource(R.drawable.baseline_star_border_black_18dp);
-                    Uri deleteUri = Uri.parse(MovieProvider.CONTENT_URI+"/"+detailData.getMovieId());
+                    Uri deleteUri = Uri.parse(MovieProvider.CONTENT_URI + "/" + detailData.getMovieId());
                     int count = getActivity().getContentResolver().delete(deleteUri, null, null);
                     isFavorite = false;
                     mCallback.onFavoriteDeleted(movieId, position);
@@ -247,7 +242,7 @@ public class MovieDetailFragment extends android.app.Fragment {
     }
 
     private void populateTrailersView(final List<TrailerData> trailerData) {
-        if (trailerData.size()==0) {
+        if (trailerData.size() == 0) {
             View view = getActivity().getLayoutInflater().inflate(R.layout.no_item, null);
             TextView noItem = (TextView) view.findViewById(R.id.no_item_text);
             noItem.setText("No Trailers");
@@ -256,14 +251,14 @@ public class MovieDetailFragment extends android.app.Fragment {
         }
 
         for (final TrailerData trailer : trailerData) {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.trailer_list_item,null);
+            View view = getActivity().getLayoutInflater().inflate(R.layout.trailer_list_item, null);
             TextView trailerName = (TextView) view.findViewById(R.id.trailer_list_item_title);
             trailerName.setText(trailer.getTrailerName());
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG, "Trailer URI:"+trailer.getTrailerUri().toString());
+                    Log.e(TAG, "Trailer URI:" + trailer.getTrailerUri().toString());
                     startActivity(new Intent(Intent.ACTION_VIEW, trailer.getTrailerUri()));
                 }
             });
@@ -274,7 +269,7 @@ public class MovieDetailFragment extends android.app.Fragment {
 
     private void populateReviewsView(final List<ReviewData> reviewsData) {
 
-        if (reviewsData.size()==0) {
+        if (reviewsData.size() == 0) {
             View view = getActivity().getLayoutInflater().inflate(R.layout.no_item, null);
             TextView noItem = (TextView) view.findViewById(R.id.no_item_text);
             noItem.setText("No User Reviews");
@@ -284,7 +279,7 @@ public class MovieDetailFragment extends android.app.Fragment {
         for (final ReviewData review : reviewsData) {
             View view = getActivity().getLayoutInflater().inflate(R.layout.review_item, null);
             TextView author = (TextView) view.findViewById(R.id.review_author);
-            author.setText("A review by "+review.getAuthor());
+            author.setText("A review by " + review.getAuthor());
             TextView content = (TextView) view.findViewById(R.id.review_content);
             content.setText(review.getContent());
             reviewsListView.addView(view);
@@ -313,7 +308,7 @@ public class MovieDetailFragment extends android.app.Fragment {
                 MovieContract.MovieEntry.COLUMN_REVIEWS,
                 MovieContract.MovieEntry.COLUMN_TRAILERS
         };
-        Uri uri = Uri.parse(MovieProvider.CONTENT_URI+"/"+movieId);
+        Uri uri = Uri.parse(MovieProvider.CONTENT_URI + "/" + movieId);
         final Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
         cursor.moveToFirst();
         detailsData = new MovieDetail(movieId,
@@ -327,14 +322,14 @@ public class MovieDetailFragment extends android.app.Fragment {
 
         try {
             JSONObject trailerJObj = new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_TRAILERS)));
-            JSONObject reviewJObj  = new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_REVIEWS)));
+            JSONObject reviewJObj = new JSONObject(cursor.getString(cursor.getColumnIndexOrThrow(MovieContract.MovieEntry.COLUMN_REVIEWS)));
 
             parseTrailerObj(trailerJObj);
             populateTrailersView(trailerData);
 
             JSONArray reviewResultArray = reviewJObj.getJSONArray("results");
             reviewData = new ArrayList<ReviewData>();
-            for (int i=0; i < reviewResultArray.length(); i++) {
+            for (int i = 0; i < reviewResultArray.length(); i++) {
                 JSONObject reviewObj = reviewResultArray.getJSONObject(i);
                 String author = reviewObj.getString("author");
                 String content = reviewObj.getString("content");
@@ -344,8 +339,8 @@ public class MovieDetailFragment extends android.app.Fragment {
             }
             populateReviewsView(reviewData);
 
-        }catch(JSONException e) {
-            Log.e(TAG,"fetchFavoriteMovieData e:"+e);
+        } catch (JSONException e) {
+            Log.e(TAG, "fetchFavoriteMovieData e:" + e);
         }
 
         populateDetailsViewData(detailsData);
@@ -360,13 +355,13 @@ public class MovieDetailFragment extends android.app.Fragment {
 
             for (int i = 0; i < trailersResultArray.length(); i++) {
                 JSONObject trailerDetails = trailersResultArray.getJSONObject((i));
-                Uri trailerUri = Uri.parse(new String("http://www.youtube.com/watch?v="+trailerDetails.getString("key")));
+                Uri trailerUri = Uri.parse(new String("http://www.youtube.com/watch?v=" + trailerDetails.getString("key")));
                 TrailerData trailerEntry = new TrailerData(trailerUri, trailerDetails.getString("name"));
                 trailerData.add(trailerEntry);
             }
 
         } catch (JSONException e) {
-            Log.e(TAG,"FetchTrailersTask Exception:",e);
+            Log.e(TAG, "FetchTrailersTask Exception:", e);
         }
         return;
     }
@@ -376,14 +371,14 @@ public class MovieDetailFragment extends android.app.Fragment {
 
         @Override
         protected JSONObject doInBackground(Integer... params) {
-            JSONObject jObj = JSONLoader.load("/movie/"+params[0]);
+            JSONObject jObj = JSONLoader.load("/movie/" + params[0]);
             return jObj;
         }
 
         @Override
         protected void onPostExecute(final JSONObject jObj) {
             super.onPostExecute(jObj);
-            if(jObj != null) {
+            if (jObj != null) {
 
                 try {
                     //poster_path, title, overview, release_year, run time, ratings
@@ -394,8 +389,8 @@ public class MovieDetailFragment extends android.app.Fragment {
                             jObj.getString("release_date"),
                             jObj.getDouble("vote_average"));
                     populateDetailsViewData(detailsData);
-                } catch(JSONException e) {
-                    Log.e(TAG,"onPostExecute e:"+e);
+                } catch (JSONException e) {
+                    Log.e(TAG, "onPostExecute e:" + e);
                 }
             }
         }
@@ -406,7 +401,7 @@ public class MovieDetailFragment extends android.app.Fragment {
 
         @Override
         protected JSONObject doInBackground(Integer... params) {
-            JSONObject jObj = JSONLoader.load("/movie/" + params[0]+"/videos");
+            JSONObject jObj = JSONLoader.load("/movie/" + params[0] + "/videos");
             return jObj;
         }
 
@@ -441,23 +436,22 @@ public class MovieDetailFragment extends android.app.Fragment {
 
                 try {
                     JSONArray reviewResultArray = jObj.getJSONArray("results");
-                    for (int i=0; i < reviewResultArray.length(); i++) {
+                    for (int i = 0; i < reviewResultArray.length(); i++) {
                         JSONObject reviewObj = reviewResultArray.getJSONObject(i);
                         String author = reviewObj.getString("author");
                         String content = reviewObj.getString("content");
                         Uri reviewUri = Uri.parse(reviewObj.getString("url"));
-                        ReviewData reviewItem  = new ReviewData(author, content, reviewUri);
+                        ReviewData reviewItem = new ReviewData(author, content, reviewUri);
                         reviewData.add(reviewItem);
                     }
 
                 } catch (JSONException e) {
-                    Log.e(TAG, "FetchReviewsTask e:"+e);
+                    Log.e(TAG, "FetchReviewsTask e:" + e);
                 }
                 populateReviewsView(reviewData);
             }
         }
     }
-
 
 
 }
